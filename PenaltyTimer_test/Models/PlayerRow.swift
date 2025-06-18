@@ -43,7 +43,11 @@ struct PlayerRow: View, Identifiable {
     @State private var timerHandler: Cancellable?
     @State private var repeatTimer: Bool = false
     
+    // Feedback
     @State private var hapticEngine: CHHapticEngine?
+    
+    // StartStop Tapping
+    @State private var lastTapTime: Date = Date()
     
     //MARK: - Body
     var body: some View {
@@ -91,7 +95,7 @@ struct PlayerRow: View, Identifiable {
         }
         .onTapGesture {
             withAnimation {
-                time == 0 ? start() : stop()
+                tappedToStartStop()
             }
         }
     }
@@ -134,6 +138,21 @@ struct PlayerRow: View, Identifiable {
                  Image(systemName: "figure.run")
         }
     }
+    
+    //MARK: Gesture handling
+    func tappedToStartStop() {
+        if time == 0 {
+            start()
+            self.lastTapTime = Date()
+        }
+        else if Date().timeIntervalSince(lastTapTime) < 0.25 {
+            stop()
+        }
+        else {
+            self.lastTapTime = Date()
+        }
+    }
+    
     
     //MARK: Haptic feedback
     private func prepareHapticEngine() {
