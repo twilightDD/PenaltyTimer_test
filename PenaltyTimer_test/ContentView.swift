@@ -12,27 +12,84 @@ import SwiftData
 import AVFoundation
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
-    private let playerRows = [
-        PlayerRow(role: .jammer),
-        PlayerRow(role: .pivot),
-        PlayerRow(role: .blocker1),
-        PlayerRow(role: .blocker2),
-        PlayerRow(role: .blocker3),
-    ]
+    
+    @State var showHelpSheet: Bool = false
     
     var body: some View {
         NavigationStack {
-            ForEach(playerRows, id: \.id) { playerRow in
-                playerRow
-                    .padding()
-            }
-            .navigationTitle("Penalty Timer")
+            PlayerRow(role: .jammer)
+                .padding()
+            PlayerRow(role: .pivot)
+                .padding()
+            PlayerRow(role: .blocker1)
+                .padding()
+            PlayerRow(role: .blocker2)
+                .padding()
+            PlayerRow(role: .blocker3)
+                .padding()
+            
+                .navigationTitle("Penalty Timer")
+                .toolbar {
+                    Button(action: {
+                        showHelpSheet.toggle()
+                    }) {
+                        Image(systemName: "questionmark.circle")
+                    }
+                }
+                .sheet(isPresented: $showHelpSheet) {
+                    HelpView()
+                        .presentationBackground(.thinMaterial)
+                        .presentationDetents([.medium])
+                }
         }
     }
 
+}
+
+struct HelpView: View {
+    var body: some View {
+        VStack(alignment: .leading) {
+            VStack(alignment: .leading) {
+                Text("Instructions")
+                    .font(.headline)
+                    .fontWeight(.heavy)
+                    .padding(.vertical)
+                
+                HStack {
+                    Image(systemName: "arrow.forward")
+                    Text("Tap on row to start a timer.")
+                }
+                .padding(.leading, 8)
+                HStack {
+                    Image(systemName: "arrow.forward")
+                    Text("Double tap on row to stop a timer.")
+                }
+                .padding(.leading, 8)
+            }
+            .padding()
+            
+            Rectangle().frame(height: 1)
+                .padding(.horizontal)
+            
+            VStack(alignment: .leading) {
+                Text("Imprint")
+                    .font(.headline)
+                    .fontWeight(.heavy)
+                    .padding(.vertical)
+                
+                Text("""
+                    Peter Hauke / 2sox
+                    Friedensstr. 16
+                    01097 Dresden
+                    peter@2sox.de
+                    """)
+                .padding(.leading, 8)
+            }
+            .padding()
+        }
+        .padding(.vertical, 30)
+        .frame(width: .infinity, height: .infinity, alignment: .leading)
+    }
 }
 
 #Preview {
