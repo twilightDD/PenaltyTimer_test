@@ -19,7 +19,7 @@ struct PlayerRow: View, Identifiable {
     
     //MARK: Constants
     private let startDuration: TimeInterval = 0
-    private let feedbackDuration: TimeInterval = 0.6
+    private let feedbackDuration: TimeInterval = 0.3
     private let standDuration: TimeInterval = 20
     private let goDuration: TimeInterval = 30
 //    private let standDuration: TimeInterval = 5 // debug
@@ -69,15 +69,15 @@ struct PlayerRow: View, Identifiable {
         
         .onReceive(timer) { timer in
             time = timer.timeIntervalSince(startTime)
-            if time >= standDuration - 0.4 && didPlayFeedback == false {
+            if didPlayFeedback == false && time >= standDuration - feedbackDuration {
                 playCustomHaptic()
-                
-                let systemSoundID: SystemSoundID = 1070
-                AudioServicesPlaySystemSound(systemSoundID)
+//                
+//                let systemSoundID: SystemSoundID = 1070
+//                AudioServicesPlaySystemSound(systemSoundID)
                 
                 didPlayFeedback = true
             }
-            if time >= goDuration - 0.4 && didPlayFeedback2 == false {
+            if didPlayFeedback2 == false && time >= goDuration - feedbackDuration {
                 //playCustomHaptic()
                 
                 let systemSoundID: SystemSoundID = 1013
@@ -105,7 +105,7 @@ struct PlayerRow: View, Identifiable {
     func start() {
         startTime = Date()
         timerHandler?.cancel()
-        timer = Timer.publish(every: 0.1,tolerance: 0.01,
+        timer = Timer.publish(every: 0.1,tolerance: 0.05,
                               on: .main, in: .default)
         timerHandler = timer.connect()
     }
