@@ -29,25 +29,10 @@ struct ContentView: View {
                 playerRow
                     .padding()
             }
-            //.frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Penalty Timer")
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
 }
 
 #Preview {

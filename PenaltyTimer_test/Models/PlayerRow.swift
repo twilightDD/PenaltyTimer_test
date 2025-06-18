@@ -11,58 +11,56 @@ import AVFoundation
 import CoreHaptics
 
 
-
+//MARK: - PlayerRow
 struct PlayerRow: View, Identifiable {
+
+    //MARK: - Enviroment
+    @Environment(\.colorScheme) var colorScheme
+    
+    //MARK: Constants
     private let startDuration: TimeInterval = 0
     private let feedbackDuration: TimeInterval = 0.6
     private let standDuration: TimeInterval = 20
     private let goDuration: TimeInterval = 30
+//    private let standDuration: TimeInterval = 5 // debug
+//    private let goDuration: TimeInterval = 10 // debug
     
+    
+    //MARK: - Lets and Vars
     let id = UUID()
-    
     let role: PlayerRole
-    @State var isRunning: Bool = false
+
+    //MARK: - States
     @State private var didPlayFeedback: Bool = false
     @State private var didPlayFeedback2: Bool = false
     
-    @State var time: TimeInterval = 0
-    var backgroundColor: Color {
-        switch time {
-            case startDuration: return .green
-            case startDuration..<standDuration: return .red
-            case standDuration..<goDuration: return .yellow
-            default:
-                return .green
-        }
-    }
-    @State var startTime: Date = Date()
+    @State private var time: TimeInterval = 0
+    @State private var startTime: Date = Date()
     
-    // Declare an idle timer
+    // Timer
     @State private var timer = Timer.publish(every: 0.1, tolerance: 0.01,
                                              on: .main, in: .default)
-    
-    // A handler to help cancel a timer later
     @State private var timerHandler: Cancellable?
-    // A flag to stop timer from repeating itself
     @State private var repeatTimer: Bool = false
     
-    @State var hapticEngine: CHHapticEngine?
+    @State private var hapticEngine: CHHapticEngine?
     
+    //MARK: - Body
     var body: some View {
-        HStack {
+        HStack(spacing: 15) {
             Text("\(role.title)")
                 .frame(width: 40)
             
+            role.icon(colorScheme: colorScheme)
+                .frame(width: 40)
+            
+            penaltyStatusView()
+                .frame(height: 30)
+            
             Spacer()
             
-            Text("\(time, specifier: "%.1f")")
+            Text("\(time, specifier: "%.1f") s")
                 .frame(alignment: .trailing)
-            
-            Spacer()
-            
-            Button(time == 0 ? "Start" : "Stop ") {
-                time == 0 ? start() : stop()
-            }
         }
         
         .onReceive(timer) { timer in
@@ -83,18 +81,23 @@ struct PlayerRow: View, Identifiable {
                 
                 didPlayFeedback2 = true
             }
-            
         }
-        .padding()
-        .background(backgroundColor)
         .font(Font.system(size: 32, weight: .bold))
         .fontDesign(.monospaced)
+        .padding()
+        .background(penaltyColor)
         .onAppear {
             prepareHapticEngine()
         }
-        
+        .onTapGesture {
+            withAnimation {
+                time == 0 ? start() : stop()
+            }
+        }
     }
     
+    //MARK: -
+    //MARK: Timing
     func start() {
         startTime = Date()
         timerHandler?.cancel()
@@ -110,6 +113,29 @@ struct PlayerRow: View, Identifiable {
         timerHandler?.cancel()
     }
     
+    //MARK: Penalty status
+    var penaltyColor: Color {
+        switch time {
+            case startDuration: return .blue.opacity(0.2)
+            case startDuration..<standDuration: return .red
+            case standDuration..<goDuration: return .yellow
+            default:
+                return .green
+        }
+    }
+    
+    func penaltyStatusView()
+    -> Image? {
+        switch time {
+            case startDuration: nil
+            case startDuration..<standDuration:  Image(systemName: "figure.seated.seatbelt")
+            case standDuration..<goDuration:  Image(systemName: "chevron.up.2")
+            default:
+                 Image(systemName: "figure.run")
+        }
+    }
+    
+    //MARK: Haptic feedback
     private func prepareHapticEngine() {
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else {
             return }
@@ -169,7 +195,10 @@ struct PlayerRow: View, Identifiable {
     }
 }
 
+//MARK: -
+//MARK: - PlayerRole
 enum PlayerRole {
+    
     case jammer
     case pivot
     case blocker1
@@ -186,20 +215,21 @@ enum PlayerRole {
         }
     }
     
-    var icon: some View {
+    @ViewBuilder
+    func icon(colorScheme: ColorScheme)
+    -> some View {
         switch self {
             case .jammer: Image(systemName: "star.fill")
-            case .pivot: Image(systemName: "")
+            case .pivot: Rectangle().fill(colorScheme == .dark ? .white : .black).frame(width: 15, height: 35, alignment: .center)
             case .blocker1: Image(systemName: "circle.fill")
             case .blocker2: Image(systemName: "circle.fill")
             case .blocker3: Image(systemName: "circle.fill")
         }
     }
     
-    
 }
 
 
 #Preview {
-    PlayerRow( role: .jammer)
+    PlayerRow( role: .pivot)
 }
