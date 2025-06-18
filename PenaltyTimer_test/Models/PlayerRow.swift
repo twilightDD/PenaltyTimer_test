@@ -221,9 +221,9 @@ enum PlayerRole {
         switch self {
             case .jammer: Image(systemName: "star.fill")
             case .pivot: Rectangle().fill(colorScheme == .dark ? .white : .black).frame(width: 15, height: 35, alignment: .center)
-            case .blocker1: Image(systemName: "circle.fill")
-            case .blocker2: Image(systemName: "circle.fill")
-            case .blocker3: Image(systemName: "circle.fill")
+            case .blocker1: Image(systemName: "shield.fill")
+            case .blocker2: Image(systemName: "shield.fill")
+            case .blocker3: Image(systemName: "shield.fill")
         }
     }
     
