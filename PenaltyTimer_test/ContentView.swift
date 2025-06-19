@@ -63,7 +63,25 @@ struct ContentView: View {
 }
 
 
+//MARK: -
+//MARK: - HelpView
 struct HelpView: View {
+    
+    //MARK: - HelpLine
+    private struct HelpLine: Identifiable {
+        var id: UUID = UUID()
+        var text: String
+    }
+    
+    //MARK: - Lets and Vars
+    private var helpLines: [HelpLine] = [
+        HelpLine(text: "Tap on row to start a timer."),
+        HelpLine(text: "Double tap on row to stop a timer."),
+        HelpLine(text: "Tap on running timer to pause it."),
+        HelpLine(text: "Tap Break to halt all timers, i.e. after a jam ended.")
+    ]
+    
+    //MARK: - Body
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading) {
@@ -72,22 +90,15 @@ struct HelpView: View {
                     .fontWeight(.heavy)
                     .padding(.vertical)
                 
-                HStack {
-                    Image(systemName: "arrow.forward")
-                    Text("Tap on row to start a timer.")
+                ForEach(helpLines) { helpLine in
+                    HStack(alignment: .firstTextBaseline) {
+                        Image(systemName: "arrow.forward")
+                        Text(helpLine.text)
+                            .fixedSize(horizontal: false, vertical: true) // for multiline, if needed
+                    }
+                    .padding(.leading, 8)
                 }
-                .padding(.leading, 8)
-                HStack {
-                    Image(systemName: "arrow.forward")
-                    Text("Double tap on row to stop a timer.")
-                }
-                .padding(.leading, 8)
-                HStack(alignment: .firstTextBaseline) {
-                    Image(systemName: "arrow.forward")
-                    Text("Tap Break to halt all timers, i.e. after a jam ended.")
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.leading, 8)
+                
             }
             .padding()
             

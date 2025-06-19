@@ -31,6 +31,7 @@ struct PlayerRow: View, Identifiable {
     let role: PlayerRole
     
     var jamBreak: Bool
+    @State var timeBreak: Bool = false
     
     //MARK: - States
     @State private var didPlayFeedback: Bool = false
@@ -62,6 +63,10 @@ struct PlayerRow: View, Identifiable {
             penaltyStatusView()
                 .frame(height: 30)
             
+            
+            penaltyBreakView()
+                .frame(height: 30)
+            
             Spacer()
             
             Text("\(time, specifier: "%.1f") s")
@@ -70,6 +75,9 @@ struct PlayerRow: View, Identifiable {
         
         .onReceive(timer) { timer in
             guard jamBreak == false else {
+                return }
+            
+            guard timeBreak == false else {
                 return }
             
             time += 0.1
@@ -117,6 +125,7 @@ struct PlayerRow: View, Identifiable {
     
     func stop() {
         time = 0
+        timeBreak = false
         didPlayFeedback = false
         didPlayFeedback2 = false
         timerHandler?.cancel()
@@ -144,17 +153,28 @@ struct PlayerRow: View, Identifiable {
         }
     }
     
+    func penaltyBreakView()
+    -> Image? {
+        timeBreak ? Image(systemName: "pause") : nil
+    }
+    
     //MARK: Gesture handling
     func tappedToStartStop() {
+        
         guard jamBreak == false else {
             return }
-        
+
         if time == 0 {
             start()
             self.lastTapTime = Date()
         }
         else if Date().timeIntervalSince(lastTapTime) < 0.25 {
             stop()
+        }
+        else if time > 0 && time < goDuration {
+            timeBreak.toggle()
+            self.lastTapTime = Date()
+            
         }
         else {
             self.lastTapTime = Date()
