@@ -13,7 +13,7 @@ import CoreHaptics
 
 //MARK: - PlayerRow
 struct PlayerRow: View, Identifiable {
-
+    
     //MARK: - Enviroment
     @Environment(\.colorScheme) var colorScheme
     
@@ -22,20 +22,21 @@ struct PlayerRow: View, Identifiable {
     private let feedbackDuration: TimeInterval = 0.3
     private let standDuration: TimeInterval = 20
     private let goDuration: TimeInterval = 30
-//    private let standDuration: TimeInterval = 5 // debug
-//    private let goDuration: TimeInterval = 10 // debug
+    //    private let standDuration: TimeInterval = 5 // debug
+    //    private let goDuration: TimeInterval = 10 // debug
     
     
     //MARK: - Lets and Vars
     let id = UUID()
     let role: PlayerRole
-
+    
+    var jamBreak: Bool
+    
     //MARK: - States
     @State private var didPlayFeedback: Bool = false
     @State private var didPlayFeedback2: Bool = false
     
     @State private var time: TimeInterval = 0
-    @State private var startTime: Date = Date()
     
     // Timer
     @State private var timer = Timer.publish(every: 0.1, tolerance: 0.01,
@@ -68,12 +69,16 @@ struct PlayerRow: View, Identifiable {
         }
         
         .onReceive(timer) { timer in
-            time = timer.timeIntervalSince(startTime)
+            guard jamBreak == false else {
+                return }
+            
+            time += 0.1
+            
             if didPlayFeedback == false && time >= standDuration - feedbackDuration {
                 playCustomHaptic()
-//                
-//                let systemSoundID: SystemSoundID = 1070
-//                AudioServicesPlaySystemSound(systemSoundID)
+                //
+                //                let systemSoundID: SystemSoundID = 1070
+                //                AudioServicesPlaySystemSound(systemSoundID)
                 
                 didPlayFeedback = true
             }
@@ -100,10 +105,10 @@ struct PlayerRow: View, Identifiable {
         }
     }
     
+    
     //MARK: -
     //MARK: Timing
     func start() {
-        startTime = Date()
         timerHandler?.cancel()
         timer = Timer.publish(every: 0.1,tolerance: 0.05,
                               on: .main, in: .default)
@@ -120,11 +125,11 @@ struct PlayerRow: View, Identifiable {
     //MARK: Penalty status
     var penaltyColor: Color {
         switch time {
-            case startDuration: return .blue.opacity(0.2)
-            case startDuration..<standDuration: return .red
-            case standDuration..<goDuration: return .yellow
+            case startDuration: return jamBreak ? .gray.opacity(0.25) : .blue.opacity(0.2)
+            case startDuration..<standDuration: return .red.opacity(jamBreak ? 0.25 : 1)
+            case standDuration..<goDuration: return .yellow.opacity(jamBreak ? 0.25 : 1)
             default:
-                return .green
+                return .green.opacity(jamBreak ? 0.25 : 1)
         }
     }
     
@@ -135,12 +140,15 @@ struct PlayerRow: View, Identifiable {
             case startDuration..<standDuration:  Image(systemName: "figure.seated.seatbelt")
             case standDuration..<goDuration:  Image(systemName: "chevron.up.2")
             default:
-                 Image(systemName: "figure.run")
+                Image(systemName: "figure.run")
         }
     }
     
     //MARK: Gesture handling
     func tappedToStartStop() {
+        guard jamBreak == false else {
+            return }
+        
         if time == 0 {
             start()
             self.lastTapTime = Date()
@@ -250,5 +258,5 @@ enum PlayerRole {
 
 
 #Preview {
-    PlayerRow( role: .pivot)
+    PlayerRow( role: .pivot, jamBreak: false)
 }
