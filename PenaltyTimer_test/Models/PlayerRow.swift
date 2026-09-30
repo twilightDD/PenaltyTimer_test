@@ -103,6 +103,7 @@ struct PlayerRow: View, Identifiable {
         .fontDesign(.monospaced)
         .padding()
         .background(penaltyColor)
+   //     .animatedGlow(animated: timeBreak)
         .onAppear {
             prepareHapticEngine()
         }

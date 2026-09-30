@@ -26,6 +26,7 @@ struct PenaltyTimer_testApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+//            AnimatedTextFieldView()
         }
         .modelContainer(sharedModelContainer)
     }
